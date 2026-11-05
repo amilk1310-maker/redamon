@@ -1,8 +1,11 @@
 .projectCard {
+  position: relative;
   transition: var(--transition-all);
 }
 
 .actions {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   gap: var(--space-1);
@@ -25,4 +28,30 @@
 .metaItem svg {
   color: var(--text-tertiary);
   flex-shrink: 0;
+}
+
+.openButton {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.openButton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.openButton:focus-visible {
+  outline: none;
+}
+
+.openButton:focus-visible::after {
+  outline: 2px solid var(--accent-secondary);
+  outline-offset: -2px;
+  border-radius: var(--radius-default);
 }

@@ -34,11 +34,21 @@ export function ProjectCard({
   return (
     <div
       className={`card cardClickable ${isSelected ? 'cardSelected' : ''} ${styles.projectCard}`}
-      onClick={onSelect}
     >
       <div className="cardHeader">
         <div>
-          <h3 className="cardTitle">{name}</h3>
+          <h3 className="cardTitle">
+            {onSelect ? (
+              <button
+                type="button"
+                className={styles.openButton}
+                onClick={onSelect}
+                aria-label={`Open project ${name}`}
+              >
+                {name}
+              </button>
+            ) : name}
+          </h3>
           {description && <p className="cardSubtitle">{description}</p>}
         </div>
         <div className={styles.actions}>

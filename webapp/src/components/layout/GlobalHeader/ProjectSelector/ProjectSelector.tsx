@@ -15,7 +15,13 @@ export function ProjectSelector() {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { currentProject, setCurrentProject, userId } = useProject()
-  const { data: projects } = useProjects(userId || undefined)
+  const {
+    data: projects,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useProjects(userId || undefined)
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -49,6 +55,19 @@ export function ProjectSelector() {
       router.pushUnguarded(`/projects/${project.id}/settings`)
     }
   }
+
+  const projectGrid = projects?.map((project) => (
+    <button
+      key={project.id}
+      className={`${styles.item} ${currentProject?.id === project.id ? styles.itemActive : ''}`}
+      onClick={() => handleSelectProject(project)}
+    >
+      <div className={styles.itemContent}>
+        <span className={styles.itemName}>{project.name}</span>
+        <span className={styles.itemDomain}>{project.targetDomain}</span>
+      </div>
+    </button>
+  ))
 
   const handleSettings = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -113,24 +132,27 @@ export function ProjectSelector() {
               <div className={styles.empty}>
                 Select a user to view projects
               </div>
-            ) : projects && projects.length > 0 ? (
-              projects.map((project) => (
+            ) : isLoading ? (
+              <div className={styles.empty} role="status">Loading projects...</div>
+            ) : isError ? (
+              <div className={styles.empty}>
+                <div role="alert">Unable to load projects</div>
                 <button
-                  key={project.id}
-                  className={`${styles.item} ${currentProject?.id === project.id ? styles.itemActive : ''}`}
-                  onClick={() => handleSelectProject(project)}
+                  className={styles.footerButton}
+                  onClick={() => void refetch()}
+                  disabled={isFetching}
                 >
-                  <div className={styles.itemContent}>
-                    <span className={styles.itemName}>{project.name}</span>
-                    <span className={styles.itemDomain}>{project.targetDomain}</span>
-                  </div>
+                  Retry
                 </button>
-              ))
+              </div>
+            ) : projects && projects.length > 0 ? (
+              projectGrid
             ) : (
               <div className={styles.empty}>
                 No projects yet
               </div>
             )}
+            {userId && isError && projectGrid}
           </div>
 
           <div className={styles.footer}>

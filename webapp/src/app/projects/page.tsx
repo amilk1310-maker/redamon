@@ -22,8 +22,8 @@ export default function ProjectsPage() {
   const [newUserName, setNewUserName] = useState('')
   const [newUserEmail, setNewUserEmail] = useState('')
 
-  const { data: users, isLoading: usersLoading } = useUsers()
-  const { data: projects, isLoading: projectsLoading, refetch } = useProjects(userId || undefined)
+  const { data: users, isLoading: usersLoading, isError: usersError, isFetching: usersFetching, refetch: refetchUsers } = useUsers()
+  const { data: projects, isLoading: projectsLoading, isError: projectsError, isFetching: projectsFetching, refetch } = useProjects(userId || undefined)
   const deleteProjectMutation = useDeleteProject()
   const createUserMutation = useCreateUser()
   const deleteUserMutation = useDeleteUser()
@@ -108,7 +108,8 @@ export default function ProjectsPage() {
         <div className={styles.headerActions}>
           <button
             className="iconButton"
-            onClick={() => refetch()}
+            onClick={() => { refetchUsers(); refetch() }}
+            disabled={usersFetching || projectsFetching}
             title="Refresh"
           >
             <RefreshCw size={14} />
@@ -173,8 +174,23 @@ export default function ProjectsPage() {
         )}
       </div>
 
-      {isLoading ? (
-        <div className={styles.loading}>Loading...</div>
+      {usersError || projectsError ? (
+        <div className={styles.empty} role="alert">
+          <h2>Unable to load {usersError ? 'users' : 'projects'}</h2>
+          <p>Your data could not be loaded. Please try again.</p>
+          <button
+            className="secondaryButton"
+            disabled={usersFetching || projectsFetching}
+            onClick={() => {
+              if (usersError) refetchUsers()
+              if (projectsError) refetch()
+            }}
+          >
+            Retry
+          </button>
+        </div>
+      ) : isLoading ? (
+        <div className={styles.loading} role="status">Loading projects...</div>
       ) : projects && projects.length > 0 ? (
         <div className={styles.grid}>
           {projects.map((project) => (

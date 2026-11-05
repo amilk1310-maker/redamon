@@ -15,7 +15,13 @@ export function ProjectSelector() {
   const [isOpen, setIsOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const { currentProject, setCurrentProject, userId } = useProject()
-  const { data: projects } = useProjects(userId || undefined)
+  const {
+    data: projects,
+    isLoading,
+    isError,
+    isFetching,
+    refetch,
+  } = useProjects(userId || undefined)
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -112,6 +118,19 @@ export function ProjectSelector() {
             {!userId ? (
               <div className={styles.empty}>
                 Select a user to view projects
+              </div>
+            ) : isLoading ? (
+              <div className={styles.empty} role="status">Loading projects...</div>
+            ) : isError ? (
+              <div className={styles.empty}>
+                <div role="alert">Unable to load projects</div>
+                <button
+                  className={styles.footerButton}
+                  onClick={() => void refetch()}
+                  disabled={isFetching}
+                >
+                  Retry
+                </button>
               </div>
             ) : projects && projects.length > 0 ? (
               projects.map((project) => (
